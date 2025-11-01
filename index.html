@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CountDownly - Countdown Timer Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        .countdown-timer {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 2rem;
+        }
+        .countdown-unit {
+            display: inline-block;
+            margin: 0.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            min-width: 80px;
+        }
+        .countdown-number {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+        }
+        .countdown-label {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+        @media (max-width: 640px) {
+            .countdown-unit {
+                margin: 0.25rem;
+                padding: 0.75rem;
+                min-width: 60px;
+            }
+            .countdown-number {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">CountDownly</h1>
+            <p class="text-gray-600">Countdown Timer Generator SaaS</p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Create New Countdown</h2>
+            
+            <!-- Input Form -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Event Name</label>
+                    <input type="text" id="eventName" placeholder="e.g: New Year Celebration" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Date and Time (YYYY-MM-DD HH:MM)</label>
+                    <input type="text" id="eventDateTime" placeholder="2024-12-31 23:59" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Format: YYYY-MM-DD HH:MM (24 hour)</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Color (Hex Code)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="colorCode" placeholder="#3B82F6" 
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <input type="color" id="colorPicker" class="w-16 h-10 border border-gray-300 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+                
+                <button onclick="generateCountdown()" 
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg">
+                    Generate Countdown
+                </button>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div id="previewSection" class="hidden bg-white rounded-lg shadow-xl p-6 mb-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Preview</h2>
+            <div id="countdownPreview" class="border-2 border-dashed border-gray-300 rounded-lg p-4 mb-4"></div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Embed Code (iframe)</label>
+                <textarea id="embedCode" readonly 
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"
+                          rows="4"></textarea>
+                <button onclick="copyEmbedCode()" 
+                        class="mt-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                    Copy Code
+                </button>
+            </div>
+        </div>
+
+        <!-- Stripe Subscription -->
+        <div class="bg-white rounded-lg shadow-xl p-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Premium Subscription</h2>
+            <p class="text-gray-600 mb-4">Create unlimited countdowns and unlock customization options.</p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-2xl font-bold text-gray-800">$10<span class="text-lg text-gray-600">/mo</span></p>
+                </div>
+                <button id="checkout-button" 
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-200 shadow-md hover:shadow-lg">
+                    Subscribe
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Color picker synchronization
+        document.getElementById('colorPicker').addEventListener('input', function(e) {
+            document.getElementById('colorCode').value = e.target.value;
+        });
+
+        document.getElementById('colorCode').addEventListener('input', function(e) {
+            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                document.getElementById('colorPicker').value = e.target.value;
+            }
+        });
+
+        // Generate countdown timer
+        function generateCountdown() {
+            const eventName = document.getElementById('eventName').value.trim();
+            const dateTime = document.getElementById('eventDateTime').value.trim();
+            const colorCode = document.getElementById('colorCode').value.trim() || '#3B82F6';
+
+            // Validate inputs
+            if (!eventName) {
+                alert('Please enter an event name.');
+                return;
+            }
+
+            if (!dateTime) {
+                alert('Please enter a date and time.');
+                return;
+            }
+
+            // Validate date format
+            const dateRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+            if (!dateRegex.test(dateTime)) {
+                alert('Please enter the date in the correct format: YYYY-MM-DD HH:MM');
+                return;
+            }
+
+            // Validate color
+            if (!/^#[0-9A-F]{6}$/i.test(colorCode)) {
+                alert('Please enter a valid hex color code (e.g: #3B82F6)');
+                return;
+            }
+
+            // Parse date
+            const [datePart, timePart] = dateTime.split(' ');
+            const [year, month, day] = datePart.split('-');
+            const [hour, minute] = timePart.split(':');
+            const targetDate = new Date(year, month - 1, day, hour, minute);
+
+            if (isNaN(targetDate.getTime())) {
+                alert('Invalid date. Please check and try again.');
+                return;
+            }
+
+            // Generate unique ID for this countdown
+            const countdownId = 'countdown-' + Date.now();
+
+            // Create preview
+            const previewHtml = `
+                <div id="${countdownId}" class="countdown-timer" style="background: ${colorCode}; color: white; border-radius: 12px;">
+                    <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">${eventName}</h3>
+                    <div id="${countdownId}-display">
+                        <div class="countdown-unit">
+                            <span class="countdown-number" id="${countdownId}-days">0</span>
+                            <span class="countdown-label">Days</span>
+                        </div>
+                        <div class="countdown-unit">
+                            <span class="countdown-number" id="${countdownId}-hours">0</span>
+                            <span class="countdown-label">Hours</span>
+                        </div>
+                        <div class="countdown-unit">
+                            <span class="countdown-number" id="${countdownId}-minutes">0</span>
+                            <span class="countdown-label">Minutes</span>
+                        </div>
+                        <div class="countdown-unit">
+                            <span class="countdown-number" id="${countdownId}-seconds">0</span>
+                            <span class="countdown-label">Seconds</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('countdownPreview').innerHTML = previewHtml;
+
+            // Generate embed code
+            const embedUrl = `${window.location.origin}${window.location.pathname}?embed=true&name=${encodeURIComponent(eventName)}&date=${encodeURIComponent(dateTime)}&color=${encodeURIComponent(colorCode)}`;
+            const embedCode = `<iframe src="${embedUrl}" width="100%" height="300" frameborder="0" style="border-radius: 12px;"></iframe>`;
+            
+            document.getElementById('embedCode').value = embedCode;
+            document.getElementById('previewSection').classList.remove('hidden');
+
+            // Start countdown
+            updateCountdown(countdownId, targetDate);
+            setInterval(() => updateCountdown(countdownId, targetDate), 1000);
+        }
+
+        // Update countdown display
+        function updateCountdown(id, targetDate) {
+            const now = new Date().getTime();
+            const distance = targetDate.getTime() - now;
+
+            if (distance < 0) {
+                document.getElementById(`${id}-display`).innerHTML = '<div style="font-size: 1.5rem; font-weight: bold;">Event Started!</div>';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById(`${id}-days`).textContent = days;
+            document.getElementById(`${id}-hours`).textContent = hours;
+            document.getElementById(`${id}-minutes`).textContent = minutes;
+            document.getElementById(`${id}-seconds`).textContent = seconds;
+        }
+
+        // Copy embed code
+        function copyEmbedCode() {
+            const embedCode = document.getElementById('embedCode');
+            embedCode.select();
+            embedCode.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            alert('Embed code copied!');
+        }
+
+        // Handle embed mode (for iframe)
+        if (window.location.search.includes('embed=true')) {
+            const params = new URLSearchParams(window.location.search);
+            const eventName = params.get('name') || 'Event';
+            const dateTime = params.get('date');
+            const colorCode = params.get('color') || '#3B82F6';
+
+            if (dateTime) {
+                const [datePart, timePart] = dateTime.split(' ');
+                const [year, month, day] = datePart.split('-');
+                const [hour, minute] = timePart.split(':');
+                const targetDate = new Date(year, month - 1, day, hour, minute);
+
+                document.body.innerHTML = `
+                    <div id="embed-countdown" class="countdown-timer" style="background: ${colorCode}; color: white; border-radius: 12px; min-height: 300px; display: flex; flex-direction: column; justify-content: center;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">${eventName}</h3>
+                        <div id="embed-countdown-display">
+                            <div class="countdown-unit">
+                                <span class="countdown-number" id="embed-days">0</span>
+                                <span class="countdown-label">Days</span>
+                            </div>
+                            <div class="countdown-unit">
+                                <span class="countdown-number" id="embed-hours">0</span>
+                                <span class="countdown-label">Hours</span>
+                            </div>
+                            <div class="countdown-unit">
+                                <span class="countdown-number" id="embed-minutes">0</span>
+                                <span class="countdown-label">Minutes</span>
+                            </div>
+                            <div class="countdown-unit">
+                                <span class="countdown-number" id="embed-seconds">0</span>
+                                <span class="countdown-label">Seconds</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                function updateEmbedCountdown() {
+                    const now = new Date().getTime();
+                    const distance = targetDate.getTime() - now;
+
+                    if (distance < 0) {
+                        document.getElementById('embed-countdown-display').innerHTML = '<div style="font-size: 1.5rem; font-weight: bold;">Event Started!</div>';
+                        return;
+                    }
+
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    document.getElementById('embed-days').textContent = days;
+                    document.getElementById('embed-hours').textContent = hours;
+                    document.getElementById('embed-minutes').textContent = minutes;
+                    document.getElementById('embed-seconds').textContent = seconds;
+                }
+
+                updateEmbedCountdown();
+                setInterval(updateEmbedCountdown, 1000);
+            }
+        }
+
+        // Stripe Checkout (Test Mode)
+        // Note: In a real application, you would create a Checkout Session on your backend
+        // For this static demo, we'll use a placeholder that shows how it would work
+        document.getElementById('checkout-button').addEventListener('click', function() {
+            // In a real implementation, you would call your backend to create a Checkout Session
+            // For demo purposes, we'll show an alert
+            alert('Backend is required for Stripe Checkout integration.\n\nIn a real application:\n1. Create a Checkout Session on the backend\n2. Get the session ID from Stripe\n3. Redirect to Stripe Checkout page\n\nTest mode: This button will work for $10/month subscription.');
+            
+            // Example code for real implementation (would need backend):
+            /*
+            fetch('/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ priceId: 'price_test_monthly' })
+            })
+            .then(response => response.json())
+            .then(session => {
+                const stripe = Stripe('pk_test_YOUR_PUBLISHABLE_KEY');
+                stripe.redirectToCheckout({ sessionId: session.id });
+            });
+            */
+        });
+    </script>
+</body>
+</html>
