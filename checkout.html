@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - CountDownly</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="text-2xl font-bold text-indigo-600">CountDownly</a>
+                <a href="index.html" class="text-gray-600 hover:text-indigo-600">← Back to Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Premium Subscription</h1>
+            <p class="text-gray-600">Unlock unlimited countdowns and premium features</p>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="hidden bg-green-50 border-2 border-green-500 rounded-lg shadow-xl p-6 mb-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-semibold text-green-800">Payment Successful!</h3>
+                    <p class="text-green-700 mt-1">Welcome to CountDownly Premium! You now have access to unlimited countdowns.</p>
+                </div>
+                <button onclick="closeSuccessMessage()" class="ml-auto text-green-600 hover:text-green-800">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Pricing Card -->
+        <div class="bg-white rounded-lg shadow-xl p-8 mb-6">
+            <div class="text-center mb-8">
+                <div class="inline-block bg-indigo-100 text-indigo-600 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                    Most Popular
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Premium Plan</h2>
+                <div class="flex items-baseline justify-center">
+                    <span class="text-5xl font-bold text-gray-800">$10</span>
+                    <span class="text-2xl text-gray-600 ml-2">/mo</span>
+                </div>
+                <p class="text-gray-500 mt-2">Cancel anytime</p>
+            </div>
+
+            <!-- Features -->
+            <div class="border-t border-b border-gray-200 py-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">What's included:</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-start">
+                        <svg class="h-5 w-5 text-green-500 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span class="text-gray-700">Unlimited countdown timers</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="h-5 w-5 text-green-500 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span class="text-gray-700">Custom color schemes</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="h-5 w-5 text-green-500 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span class="text-gray-700">Priority support</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="h-5 w-5 text-green-500 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span class="text-gray-700">Advanced customization options</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="h-5 w-5 text-green-500 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span class="text-gray-700">No ads, no limits</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Checkout Button -->
+            <div class="text-center">
+                <button id="paddle-checkout-button" 
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-8 rounded-lg transition duration-200 shadow-md hover:shadow-lg text-lg">
+                    Subscribe Now - $10/month
+                </button>
+                <p class="text-xs text-gray-500 mt-4">
+                    Secure payment powered by Paddle. You'll be redirected to complete your purchase.
+                </p>
+            </div>
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="bg-white rounded-lg shadow-xl p-6">
+            <div class="flex flex-wrap justify-center items-center gap-6 text-gray-600">
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span class="text-sm">Secure Payment</span>
+                </div>
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="text-sm">30-Day Money Back</span>
+                </div>
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="text-sm">Cancel Anytime</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-wrap justify-center gap-6 text-sm text-gray-600">
+                <a href="terms-of-service.html" class="hover:text-indigo-600">Terms of Service</a>
+                <a href="privacy-policy.html" class="hover:text-indigo-600">Privacy Policy</a>
+                <a href="refund-policy.html" class="hover:text-indigo-600">Refund Policy</a>
+            </div>
+            <p class="text-center text-gray-500 text-xs mt-4">© 2024 CountDownly. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Paddle Configuration
+        // Replace these values with your actual Paddle credentials
+        const PADDLE_VENDOR_ID = 'YOUR_PADDLE_VENDOR_ID'; // Get from Paddle Dashboard > Settings > Integrations
+        const PADDLE_PRICE_ID = 'pri_01xxxxx'; // Get from Paddle Dashboard > Products > Your Product > Price ID
+        
+        // Initialize Paddle
+        let paddle;
+        
+        // Check if Paddle is available
+        if (typeof Paddle !== 'undefined') {
+            Paddle.Setup({ 
+                vendor: PADDLE_VENDOR_ID,
+                environment: 'sandbox' // Change to 'production' when ready
+            });
+            paddle = Paddle;
+        }
+
+        // Paddle Checkout Button
+        document.getElementById('paddle-checkout-button').addEventListener('click', function() {
+            // Check if Paddle is initialized
+            if (!paddle) {
+                alert('Paddle is not loaded. Please check:\n1. Paddle script is included\n2. Vendor ID is set correctly\n3. Network connection is working');
+                return;
+            }
+
+            // Validate configuration
+            if (PADDLE_VENDOR_ID === 'YOUR_PADDLE_VENDOR_ID' || !PADDLE_PRICE_ID) {
+                alert('Please configure Paddle:\n1. Replace PADDLE_VENDOR_ID with your Paddle Vendor ID\n2. Replace PADDLE_PRICE_ID with your Price ID\n\nYou can find these in your Paddle Dashboard.');
+                return;
+            }
+
+            // Open Paddle Checkout Overlay
+            paddle.Checkout.open({
+                items: [
+                    {
+                        priceId: PADDLE_PRICE_ID,
+                        quantity: 1
+                    }
+                ],
+                customer: {
+                    email: '', // Optional: Pre-fill email
+                },
+                customData: {
+                    // Optional: Add any custom data you need
+                    subscription_type: 'monthly'
+                },
+                settings: {
+                    successUrl: window.location.origin + window.location.pathname + '?success=true',
+                    theme: 'light',
+                    locale: 'en'
+                },
+                eventCallback: function(data) {
+                    // Handle Paddle events
+                    if (data.name === 'checkout.completed') {
+                        console.log('Checkout completed:', data);
+                        // Redirect to success page or show success message
+                        window.location.href = window.location.origin + window.location.pathname + '?success=true';
+                    }
+                }
+            });
+        });
+
+        // Handle success redirect
+        function showSuccessMessage() {
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                successMessage.classList.remove('hidden');
+                // Scroll to success message
+                successMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Clean URL
+                if (window.location.search.includes('success=true')) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }
+        }
+
+        function closeSuccessMessage() {
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                successMessage.classList.add('hidden');
+            }
+        }
+
+        // Check for success parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+            setTimeout(showSuccessMessage, 500);
+        }
+    </script>
+</body>
+</html>
+

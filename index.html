@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CountDownly - Countdown Timer Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://js.stripe.com/v3/"></script>
     <style>
         .countdown-timer {
             font-family: 'Arial', sans-serif;
@@ -102,21 +101,34 @@
             </div>
         </div>
 
-        <!-- Stripe Subscription -->
+        <!-- Premium Subscription -->
         <div class="bg-white rounded-lg shadow-xl p-6">
             <h2 class="text-2xl font-semibold text-gray-800 mb-4">Premium Subscription</h2>
             <p class="text-gray-600 mb-4">Create unlimited countdowns and unlock customization options.</p>
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between flex-wrap gap-4">
                 <div>
                     <p class="text-2xl font-bold text-gray-800">$10<span class="text-lg text-gray-600">/mo</span></p>
+                    <p class="text-sm text-gray-500 mt-1">Cancel anytime</p>
                 </div>
-                <button id="checkout-button" 
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-200 shadow-md hover:shadow-lg">
-                    Subscribe
-                </button>
+                <a href="checkout.html" 
+                   class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-200 shadow-md hover:shadow-lg inline-block text-center">
+                    Subscribe Now
+                </a>
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-wrap justify-center gap-6 text-sm text-gray-600">
+                <a href="terms-of-service.html" class="hover:text-indigo-600">Terms of Service</a>
+                <a href="privacy-policy.html" class="hover:text-indigo-600">Privacy Policy</a>
+                <a href="refund-policy.html" class="hover:text-indigo-600">Refund Policy</a>
+            </div>
+            <p class="text-center text-gray-500 text-xs mt-4">© 2024 CountDownly. All rights reserved.</p>
+        </div>
+    </footer>
 
     <script>
         // Color picker synchronization
@@ -304,31 +316,6 @@
                 setInterval(updateEmbedCountdown, 1000);
             }
         }
-
-        // Stripe Checkout (Test Mode)
-        // Note: In a real application, you would create a Checkout Session on your backend
-        // For this static demo, we'll use a placeholder that shows how it would work
-        document.getElementById('checkout-button').addEventListener('click', function() {
-            // In a real implementation, you would call your backend to create a Checkout Session
-            // For demo purposes, we'll show an alert
-            alert('Backend is required for Stripe Checkout integration.\n\nIn a real application:\n1. Create a Checkout Session on the backend\n2. Get the session ID from Stripe\n3. Redirect to Stripe Checkout page\n\nTest mode: This button will work for $10/month subscription.');
-            
-            // Example code for real implementation (would need backend):
-            /*
-            fetch('/create-checkout-session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ priceId: 'price_test_monthly' })
-            })
-            .then(response => response.json())
-            .then(session => {
-                const stripe = Stripe('pk_test_YOUR_PUBLISHABLE_KEY');
-                stripe.redirectToCheckout({ sessionId: session.id });
-            });
-            */
-        });
     </script>
 </body>
 </html>
