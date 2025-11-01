@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - CountDownly</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <!-- Navigation -->
@@ -21,7 +20,7 @@
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <!-- Header -->
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">Premium Subscription</h1>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Premium Access</h1>
             <p class="text-gray-600">Unlock unlimited countdowns and premium features</p>
         </div>
 
@@ -54,9 +53,8 @@
                 <h2 class="text-3xl font-bold text-gray-800 mb-2">Premium Plan</h2>
                 <div class="flex items-baseline justify-center">
                     <span class="text-5xl font-bold text-gray-800">$10</span>
-                    <span class="text-2xl text-gray-600 ml-2">/mo</span>
                 </div>
-                <p class="text-gray-500 mt-2">Cancel anytime</p>
+                <p class="text-gray-500 mt-2">One-time payment</p>
             </div>
 
             <!-- Features -->
@@ -93,18 +91,32 @@
                         </svg>
                         <span class="text-gray-700">No ads, no limits</span>
                     </li>
+                    <li class="flex items-start">
+                        <svg class="h-5 w-5 text-green-500 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span class="text-gray-700">Lifetime access - no recurring fees</span>
+                    </li>
                 </ul>
             </div>
 
             <!-- Checkout Button -->
             <div class="text-center">
-                <button id="paddle-checkout-button" 
-                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-8 rounded-lg transition duration-200 shadow-md hover:shadow-lg text-lg">
-                    Subscribe Now - $10/month
-                </button>
+                <a href="https://zekayiozdemir.gumroad.com/l/fiyojt" 
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-8 rounded-lg transition duration-200 shadow-md hover:shadow-lg text-lg inline-block">
+                    Buy Now - $10
+                </a>
                 <p class="text-xs text-gray-500 mt-4">
-                    Secure payment powered by Paddle. You'll be redirected to complete your purchase.
+                    Secure payment powered by Gumroad. You'll be redirected to complete your purchase.
                 </p>
+                <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-sm text-blue-800 font-medium mb-2">📧 After Purchase:</p>
+                    <p class="text-xs text-blue-700">
+                        You'll receive your license key via email after purchase. Then visit <a href="license.html" class="underline font-semibold">license activation page</a> to unlock premium features.
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -146,69 +158,7 @@
     </footer>
 
     <script>
-        // Paddle Configuration
-        // Replace these values with your actual Paddle credentials
-        const PADDLE_VENDOR_ID = 'YOUR_PADDLE_VENDOR_ID'; // Get from Paddle Dashboard > Settings > Integrations
-        const PADDLE_PRICE_ID = 'pri_01xxxxx'; // Get from Paddle Dashboard > Products > Your Product > Price ID
-        
-        // Initialize Paddle
-        let paddle;
-        
-        // Check if Paddle is available
-        if (typeof Paddle !== 'undefined') {
-            Paddle.Setup({ 
-                vendor: PADDLE_VENDOR_ID,
-                environment: 'sandbox' // Change to 'production' when ready
-            });
-            paddle = Paddle;
-        }
-
-        // Paddle Checkout Button
-        document.getElementById('paddle-checkout-button').addEventListener('click', function() {
-            // Check if Paddle is initialized
-            if (!paddle) {
-                alert('Paddle is not loaded. Please check:\n1. Paddle script is included\n2. Vendor ID is set correctly\n3. Network connection is working');
-                return;
-            }
-
-            // Validate configuration
-            if (PADDLE_VENDOR_ID === 'YOUR_PADDLE_VENDOR_ID' || !PADDLE_PRICE_ID) {
-                alert('Please configure Paddle:\n1. Replace PADDLE_VENDOR_ID with your Paddle Vendor ID\n2. Replace PADDLE_PRICE_ID with your Price ID\n\nYou can find these in your Paddle Dashboard.');
-                return;
-            }
-
-            // Open Paddle Checkout Overlay
-            paddle.Checkout.open({
-                items: [
-                    {
-                        priceId: PADDLE_PRICE_ID,
-                        quantity: 1
-                    }
-                ],
-                customer: {
-                    email: '', // Optional: Pre-fill email
-                },
-                customData: {
-                    // Optional: Add any custom data you need
-                    subscription_type: 'monthly'
-                },
-                settings: {
-                    successUrl: window.location.origin + window.location.pathname + '?success=true',
-                    theme: 'light',
-                    locale: 'en'
-                },
-                eventCallback: function(data) {
-                    // Handle Paddle events
-                    if (data.name === 'checkout.completed') {
-                        console.log('Checkout completed:', data);
-                        // Redirect to success page or show success message
-                        window.location.href = window.location.origin + window.location.pathname + '?success=true';
-                    }
-                }
-            });
-        });
-
-        // Handle success redirect
+        // Handle success redirect from Gumroad
         function showSuccessMessage() {
             const successMessage = document.getElementById('successMessage');
             if (successMessage) {
@@ -229,9 +179,14 @@
             }
         }
 
-        // Check for success parameter
+        // Check for success parameter (if Gumroad redirects back)
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('success') === 'true') {
+            setTimeout(showSuccessMessage, 500);
+        }
+
+        // Also check for Gumroad-specific parameters
+        if (urlParams.get('purchase') === 'success' || urlParams.get('payment') === 'success') {
             setTimeout(showSuccessMessage, 500);
         }
     </script>

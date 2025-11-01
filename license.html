@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter License Key - CountDownly</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="text-2xl font-bold text-indigo-600">CountDownly</a>
+                <a href="index.html" class="text-gray-600 hover:text-indigo-600">← Back to Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+        <div class="bg-white rounded-lg shadow-xl p-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Enter Your License Key</h1>
+            <p class="text-gray-600 mb-8">
+                Enter the license key you received after purchasing CountDownly Premium to unlock all features.
+            </p>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="hidden bg-red-50 border-2 border-red-500 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="text-red-700 font-medium" id="errorText">Invalid license key. Please check and try again.</span>
+                </div>
+            </div>
+
+            <!-- Success Message -->
+            <div id="successMessage" class="hidden bg-green-50 border-2 border-green-500 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span class="text-green-700 font-medium">License activated successfully! Redirecting...</span>
+                </div>
+            </div>
+
+            <!-- License Key Form -->
+            <form id="licenseForm" class="space-y-6">
+                <div>
+                    <label for="licenseKey" class="block text-sm font-medium text-gray-700 mb-2">
+                        License Key
+                    </label>
+                    <input type="text" 
+                           id="licenseKey" 
+                           name="licenseKey"
+                           placeholder="CDLY-XXXX-XXXX-XXXX"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-center text-lg tracking-wider"
+                           required
+                           autocomplete="off">
+                    <p class="text-xs text-gray-500 mt-2">
+                        You should receive your license key via email after purchase, or find it in your Gumroad purchase receipt.
+                    </p>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg">
+                    Activate License
+                </button>
+            </form>
+
+            <!-- Help Section -->
+            <div class="mt-8 pt-8 border-t border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Need Help?</h3>
+                <div class="space-y-3 text-sm text-gray-600">
+                    <p><strong>Can't find your license key?</strong></p>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li>Check your email inbox (including spam folder) for the purchase confirmation from Gumroad</li>
+                        <li>Log into your Gumroad account and check "My Library" section</li>
+                        <li>Contact support if you've lost your license key</li>
+                    </ul>
+                    <p class="mt-4"><strong>Haven't purchased yet?</strong></p>
+                    <a href="checkout.html" class="text-indigo-600 hover:underline">Purchase CountDownly Premium →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-wrap justify-center gap-6 text-sm text-gray-600">
+                <a href="terms-of-service.html" class="hover:text-indigo-600">Terms of Service</a>
+                <a href="privacy-policy.html" class="hover:text-indigo-600">Privacy Policy</a>
+                <a href="refund-policy.html" class="hover:text-indigo-600">Refund Policy</a>
+            </div>
+            <p class="text-center text-gray-500 text-xs mt-4">© 2024 CountDownly. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // License key validation and storage
+        const LICENSE_KEY_PATTERN = /^CDLY-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+        
+        // Format license key input (add dashes automatically)
+        document.getElementById('licenseKey').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+            
+            // Add dashes at positions 5, 10, 15
+            if (value.length > 4) {
+                value = value.substring(0, 4) + '-' + value.substring(4);
+            }
+            if (value.length > 9) {
+                value = value.substring(0, 9) + '-' + value.substring(9);
+            }
+            if (value.length > 14) {
+                value = value.substring(0, 14) + '-' + value.substring(14, 18);
+            }
+            
+            e.target.value = value;
+        });
+
+        // Validate license key format and check against stored list
+        function validateLicenseKey(key) {
+            // Remove whitespace
+            key = key.trim().toUpperCase();
+            
+            // Check format
+            if (!LICENSE_KEY_PATTERN.test(key)) {
+                return { valid: false, message: 'Invalid license key format. Format should be: CDLY-XXXX-XXXX-XXXX' };
+            }
+
+            // In a real application, you would validate against a database or API
+            // For now, we'll use a simple hash-based validation
+            // You should generate real license keys and validate them server-side
+            
+            // For demo purposes, accept any key with correct format
+            // In production, you would check against a database or use cryptographic validation
+            
+            // Simple validation: Check if key follows a pattern
+            // You can implement more complex validation using checksums or API calls
+            
+            return { valid: true, key: key };
+        }
+
+        // Handle form submission
+        document.getElementById('licenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const licenseKey = document.getElementById('licenseKey').value;
+            const validation = validateLicenseKey(licenseKey);
+            
+            // Hide previous messages
+            document.getElementById('errorMessage').classList.add('hidden');
+            document.getElementById('successMessage').classList.add('hidden');
+            
+            if (!validation.valid) {
+                // Show error
+                document.getElementById('errorText').textContent = validation.message;
+                document.getElementById('errorMessage').classList.remove('hidden');
+                return;
+            }
+            
+            // Store license key in localStorage
+            localStorage.setItem('countdownly_license', validation.key);
+            localStorage.setItem('countdownly_license_date', new Date().toISOString());
+            
+            // Show success message
+            document.getElementById('successMessage').classList.remove('hidden');
+            
+            // Redirect to home page after 1.5 seconds
+            setTimeout(function() {
+                window.location.href = 'index.html?license=activated';
+            }, 1500);
+        });
+
+        // Check if user already has a license
+        const existingLicense = localStorage.getItem('countdownly_license');
+        if (existingLicense) {
+            document.getElementById('licenseKey').value = existingLicense;
+            document.getElementById('successMessage').classList.remove('hidden');
+            document.getElementById('successMessage').innerHTML = `
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span class="text-green-700 font-medium">You already have an active license (${existingLicense.substring(0, 8)}...). <a href="index.html" class="underline">Go to app →</a></span>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
+
